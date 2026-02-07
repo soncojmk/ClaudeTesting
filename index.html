@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vitable Health - Search Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --grey-9: #1B1C1E;
+      --grey-6: #757575;
+      --grey-4: #DEDEDE;
+      --grey-2: #F6F7F7;
+      --grey-1: #FAFAFA;
+      --white: #FFFFFF;
+      --green-5: #4299A6;
+      --red-3: #FF4343;
+      --shadow: 0px 4px 60px 0px rgba(0,0,0,0.04);
+      --font: 'Rethink Sans', sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--grey-1);
+      color: var(--grey-9);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background decorative circles */
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .bg-circle-1 {
+      width: 232px; height: 232px;
+      background: rgba(66, 153, 166, 0.08);
+      top: 90px; right: -40px;
+    }
+    .bg-circle-2 {
+      width: 140px; height: 140px;
+      background: rgba(66, 153, 166, 0.06);
+      top: 400px; right: 200px;
+    }
+    .bg-circle-3 {
+      width: 232px; height: 232px;
+      background: rgba(66, 153, 166, 0.08);
+      bottom: 150px; left: -100px;
+    }
+    .bg-circle-4 {
+      width: 142px; height: 142px;
+      background: rgba(66, 153, 166, 0.06);
+      bottom: 100px; left: 400px;
+    }
+
+    .page-wrapper {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Header */
+    .header {
+      width: 1180px;
+      max-width: calc(100% - 40px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--white);
+      border: 1px solid var(--grey-2);
+      border-radius: 50px;
+      padding: 8px 8px 8px 16px;
+      box-shadow: var(--shadow);
+      margin-top: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .logo svg { height: 40px; }
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--grey-9);
+    }
+
+    .btn-contact {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--white);
+      border: 1px solid var(--grey-4);
+      border-radius: 30px;
+      padding: 4px 20px;
+      height: 40px;
+      font-family: var(--font);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--grey-9);
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    .btn-contact:hover { background: var(--grey-2); }
+
+    /* Back button */
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--grey-2);
+      border: 1px solid var(--grey-4);
+      border-radius: 30px;
+      padding: 4px 8px;
+      font-family: var(--font);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--grey-9);
+      cursor: pointer;
+      line-height: 1.2;
+      align-self: flex-start;
+      margin-top: 32px;
+      margin-left: calc((100% - 1180px) / 2);
+      position: relative;
+      z-index: 10;
+    }
+    .back-btn:hover { background: var(--grey-4); }
+    @media (max-width: 1220px) {
+      .back-btn { margin-left: 20px; }
+    }
+
+    /* Main content area */
+    .main-content {
+      width: 580px;
+      max-width: calc(100% - 40px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      margin-top: 25px;
+      position: relative;
+      z-index: 5;
+      flex: 1;
+    }
+
+    .text-section {
+      text-align: center;
+      max-width: 508px;
+    }
+    .text-section h1 {
+      font-size: 44px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--grey-9);
+      margin-bottom: 16px;
+    }
+    .text-section p {
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.2;
+      color: var(--grey-6);
+    }
+
+    /* Card */
+    .card {
+      width: 100%;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    /* Form inputs */
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .form-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .form-group label {
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--grey-9);
+    }
+    .form-group input,
+    .form-group .dropdown-trigger {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--grey-4);
+      border-radius: 24px;
+      padding: 9px 16px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: var(--grey-9);
+      background: var(--white);
+      outline: none;
+    }
+    .form-group input::placeholder {
+      color: var(--grey-6);
+    }
+    .form-group input:focus,
+    .form-group .dropdown-trigger.active {
+      border-color: var(--green-5);
+    }
+
+    /* Dropdown */
+    .dropdown-wrapper {
+      position: relative;
+    }
+    .dropdown-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .dropdown-trigger svg {
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .dropdown-trigger.active svg {
+      transform: rotate(180deg);
+    }
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      width: 100%;
+      background: var(--white);
+      border: 1px solid var(--grey-4);
+      border-radius: 10px;
+      padding: 4px;
+      box-shadow: var(--shadow);
+      z-index: 100;
+    }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: var(--grey-9);
+      cursor: pointer;
+    }
+    .dropdown-item:hover,
+    .dropdown-item.selected {
+      background: var(--grey-2);
+    }
+
+    /* Remove person link */
+    .remove-person {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--red-3);
+      cursor: pointer;
+      margin-bottom: 16px;
+      background: none;
+      border: none;
+      font-family: var(--font);
+    }
+    .remove-person:hover { opacity: 0.8; }
+
+    /* Add someone else */
+    .add-person-btn {
+      width: 100%;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--white);
+      border: 1px solid var(--grey-4);
+      border-radius: 24px;
+      font-family: var(--font);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--grey-9);
+      cursor: pointer;
+      margin-bottom: 24px;
+    }
+    .add-person-btn:hover { background: var(--grey-2); }
+
+    /* Search plans button */
+    .search-btn {
+      width: 100%;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--grey-9);
+      border: none;
+      border-radius: 30px;
+      font-family: var(--font);
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--white);
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    .search-btn:hover { background: #333; }
+
+    /* Footer */
+    .footer {
+      width: 1180px;
+      max-width: calc(100% - 40px);
+      padding: 40px 0;
+      text-align: center;
+      position: relative;
+      z-index: 5;
+    }
+    .footer p {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: var(--grey-6);
+    }
+
+    /* ============ PLANS PAGE ============ */
+    .plans-card {
+      width: 100%;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 0;
+    }
+
+    .plans-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .plans-count {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .plans-count span {
+      font-weight: 400;
+      color: var(--grey-6);
+    }
+    .location-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--grey-6);
+    }
+
+    .coverage-sort-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .coverage-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--grey-9);
+    }
+    .sort-by {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--grey-6);
+    }
+    .sort-dropdown {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      color: var(--grey-9);
+      cursor: pointer;
+    }
+
+    .filters-section {
+      margin-bottom: 24px;
+    }
+    .filters-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .filters-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .clear-all {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--grey-9);
+      text-decoration: underline;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font);
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 40px;
+      padding: 0 16px;
+      border: 1px solid var(--grey-4);
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--grey-9);
+      cursor: pointer;
+      background: var(--white);
+      font-family: var(--font);
+      position: relative;
+    }
+    .filter-chip.has-value {
+      border-color: var(--green-5);
+    }
+    .filter-chip .chip-x {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      color: var(--grey-6);
+      margin-right: -4px;
+    }
+    .filter-chip svg {
+      flex-shrink: 0;
+    }
+
+    /* Filter dropdown */
+    .filter-dropdown-wrapper {
+      position: relative;
+      display: inline-flex;
+    }
+    .filter-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 180px;
+      background: var(--white);
+      border: 1px solid var(--grey-4);
+      border-radius: 10px;
+      padding: 4px;
+      box-shadow: var(--shadow);
+      z-index: 100;
+    }
+
+    /* Plan cards */
+    .plan-card {
+      border: 1px solid var(--grey-4);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .plan-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .plan-logo {
+      height: 28px;
+    }
+    .plan-tier {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .tier-silver { background: #E8E8E8; color: var(--grey-9); }
+    .tier-gold { background: #FFF3D6; color: #B8860B; }
+    .tier-bronze { background: #F5E6D3; color: #8B6914; }
+    .tier-expanded-bronze { background: #FFE8D6; color: #C4621A; }
+
+    .plan-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--grey-9);
+      margin-bottom: 4px;
+    }
+    .find-providers {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--green-5);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .plan-name-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .plan-details-grid {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+    }
+    .plan-detail {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid var(--grey-2);
+      border-radius: 0;
+    }
+    .plan-detail:first-child {
+      border-radius: 8px 0 0 8px;
+    }
+    .plan-detail:last-child {
+      border-radius: 0 8px 8px 0;
+      border-left: none;
+    }
+    .plan-detail-label {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--grey-6);
+      margin-bottom: 4px;
+    }
+    .plan-detail-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--grey-9);
+    }
+
+    .plan-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .compare-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--grey-6);
+      cursor: pointer;
+    }
+    .compare-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--grey-4);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .plan-details-link {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--grey-9);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Transition */
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity 0.25s ease;
+    }
+    .fade-enter-from, .fade-leave-to {
+      opacity: 0;
+    }
+
+    /* Click outside overlay */
+    .click-outside {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="page-wrapper">
+    <!-- Background decorative circles -->
+    <div class="bg-circle bg-circle-1"></div>
+    <div class="bg-circle bg-circle-2"></div>
+    <div class="bg-circle bg-circle-3"></div>
+    <div class="bg-circle bg-circle-4"></div>
+
+    <!-- Header -->
+    <header class="header">
+      <a href="#" class="logo">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="44" height="44" rx="14" fill="#4299A6"/>
+          <path d="M13 14L22 30L31 14" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="logo-text">Vitable</span>
+      </a>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="employer-signup.html" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:var(--green-5);color:#fff;border-radius:30px;font-size:14px;font-weight:600;text-decoration:none;transition:opacity .2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+          For Employers
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4L10 8L6 12" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <button class="btn-contact">
+          Contact us
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4L10 8L6 12" stroke="#1B1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Back Button -->
+    <button class="back-btn" @click="goBack">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M15 18L9 12L15 6" stroke="#1B1C1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back
+    </button>
+
+    <!-- Page Content -->
+    <transition name="fade" mode="out-in">
+      <!-- ============ PAGE 1: COVERAGE FORM ============ -->
+      <div v-if="currentPage === 'coverage'" key="coverage" class="main-content">
+        <div class="text-section">
+          <h1>Who needs coverage?</h1>
+          <p>Tell us who needs to be covered by your health insurance plan</p>
+        </div>
+
+        <div class="card">
+          <!-- Primary person (always shown) -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>First name</label>
+              <input type="text" v-model="people[0].name" placeholder="Type here" />
+            </div>
+            <div class="form-group">
+              <label>Insurance start age</label>
+              <input type="text" v-model="people[0].age" placeholder="Type here" />
+            </div>
+            <div class="form-group">
+              <label>Relationship</label>
+              <div class="dropdown-wrapper">
+                <div class="dropdown-trigger" :class="{ active: openDropdown === 'rel-0' }" @click.stop="toggleDropdown('rel-0')">
+                  <span :style="{ color: people[0].relationship ? 'var(--grey-9)' : 'var(--grey-6)' }">
+                    {{ people[0].relationship || 'Select' }}
+                  </span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 6L8 10L12 6" stroke="#1B1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div v-if="openDropdown === 'rel-0'" class="dropdown-menu">
+                  <div class="dropdown-item" :class="{ selected: people[0].relationship === 'Self' }" @click="selectRelationship(0, 'Self')">
+                    Self
+                    <svg v-if="people[0].relationship === 'Self'" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L7 12L13 4" stroke="#1B1C1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div class="dropdown-item" :class="{ selected: people[0].relationship === 'Spouse' }" @click="selectRelationship(0, 'Spouse')">
+                    Spouse
+                    <svg v-if="people[0].relationship === 'Spouse'" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L7 12L13 4" stroke="#1B1C1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div class="dropdown-item" :class="{ selected: people[0].relationship === 'Child' }" @click="selectRelationship(0, 'Child')">
+                    Child
+                    <svg v-if="people[0].relationship === 'Child'" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L7 12L13 4" stroke="#1B1C1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional people -->
+          <template v-for="(person, index) in people.slice(1)" :key="index + 1">
+            <div class="form-row">
+              <div class="form-group">
+                <label>First name</label>
+                <input type="text" v-model="person.name" placeholder="Type here" />
+              </div>
+              <div class="form-group">
+                <label>Insurance start age</label>
+                <input type="text" v-model="person.age" placeholder="Type here" />
+              </div>
+              <div class="form-group">
+                <label>Relationship</label>
+                <div class="dropdown-wrapper">
+                  <div class="dropdown-trigger" :class="{ active: openDropdown === 'rel-' + (index + 1) }" @click.stop="toggleDropdown('rel-' + (index + 1))">
+                    <span :style="{ color: person.relationship ? 'var(--grey-9)' : 'var(--grey-6)' }">
+                      {{ person.relationship || 'Select' }}
+                    </span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 6L8 10L12 6" stroke="#1B1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div v-if="openDropdown === 'rel-' + (index + 1)" class="dropdown-menu">
+                    <div class="dropdown-item" :class="{ selected: person.relationship === 'Child' }" @click="selectRelationship(index + 1, 'Child')">
+                      Child
+                      <svg v-if="person.relationship === 'Child'" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L7 12L13 4" stroke="#1B1C1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="dropdown-item" :class="{ selected: person.relationship === 'Spouse' }" @click="selectRelationship(index + 1, 'Spouse')">
+                      Spouse
+                      <svg v-if="person.relationship === 'Spouse'" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L7 12L13 4" stroke="#1B1C1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="remove-person" @click="removePerson(index + 1)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 4L12 12M12 4L4 12" stroke="#FF4343" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              Remove this person
+            </button>
+          </template>
+
+          <!-- Add someone else -->
+          <button class="add-person-btn" @click="addPerson">
+            Add someone else
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 3V13M3 8H13" stroke="#1B1C1E" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+
+          <!-- Search plans button -->
+          <button class="search-btn" @click="searchPlans">
+            Search plans
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M8 4L14 10L8 16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ============ PAGE 2: PLANS LISTING ============ -->
+      <div v-else-if="currentPage === 'plans'" key="plans" class="main-content">
+        <div class="plans-card">
+          <!-- Plans header -->
+          <div class="plans-header">
+            <div class="plans-count">
+              67 <span>medical plans available</span>
+            </div>
+            <div class="location-badge">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M6 1C4.067 1 2.5 2.567 2.5 4.5C2.5 7.25 6 11 6 11C6 11 9.5 7.25 9.5 4.5C9.5 2.567 7.933 1 6 1Z" stroke="#757575" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="6" cy="4.5" r="1" stroke="#757575" stroke-width="1"/>
+              </svg>
+              Aliquippa, Pennsylvania
+            </div>
+          </div>
+
+          <!-- Coverage & Sort row -->
+          <div class="coverage-sort-row">
+            <div class="coverage-label">
+              Coverage
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="7" stroke="#757575" stroke-width="1"/>
+                <text x="8" y="11" text-anchor="middle" font-size="10" fill="#757575" font-family="Rethink Sans">i</text>
+              </svg>
+            </div>
+            <div class="sort-by">
+              Sort by:
+              <div class="sort-dropdown" @click.stop="toggleDropdown('sort')">
+                <span>{{ selectedSort }}</span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M3 5L6 8L9 5" stroke="#1B1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div v-if="openDropdown === 'sort'" class="filter-dropdown-menu" style="position: absolute; right: 24px; top: auto; margin-top: 4px;">
+                <div class="dropdown-item" :class="{ selected: selectedSort === 'Lowest deductible' }" @click="selectedSort = 'Lowest deductible'; openDropdown = null">Lowest deductible</div>
+                <div class="dropdown-item" :class="{ selected: selectedSort === 'Lowest premium' }" @click="selectedSort = 'Lowest premium'; openDropdown = null">Lowest premium</div>
+                <div class="dropdown-item" :class="{ selected: selectedSort === 'Highest rated' }" @click="selectedSort = 'Highest rated'; openDropdown = null">Highest rated</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="filters-section">
+            <div class="filters-header">
+              <div class="filters-title">Filters</div>
+              <button class="clear-all" @click="clearAllFilters">Clear all</button>
+            </div>
+            <div class="filter-chips">
+              <!-- Metal level filter -->
+              <div class="filter-dropdown-wrapper">
+                <button class="filter-chip" :class="{ 'has-value': selectedMetalLevel }" @click.stop="toggleDropdown('metal')">
+                  <span v-if="selectedMetalLevel" class="chip-x" @click.stop="selectedMetalLevel = null">✕</span>
+                  {{ selectedMetalLevel || 'Metal level' }}
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M3 5L6 8L9 5" stroke="#1B1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div v-if="openDropdown === 'metal'" class="filter-dropdown-menu">
+                  <div v-for="level in metalLevels" :key="level" class="dropdown-item" :class="{ selected: selectedMetalLevel === level }" @click="selectedMetalLevel = level; openDropdown = null">
+                    {{ level }}
+                    <svg v-if="selectedMetalLevel === level" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L7 12L13 4" stroke="#1B1C1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Plan type filter -->
+              <div class="filter-dropdown-wrapper">
+                <button class="filter-chip" @click.stop="toggleDropdown('plantype')">
+                  Plan type
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M3 5L6 8L9 5" stroke="#1B1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div v-if="openDropdown === 'plantype'" class="filter-dropdown-menu">
+                  <div v-for="ptype in planTypes" :key="ptype" class="dropdown-item" @click="openDropdown = null">
+                    {{ ptype }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Insurance company filter -->
+              <div class="filter-dropdown-wrapper">
+                <button class="filter-chip" :class="{ 'has-value': selectedInsurers.length > 0 }" @click.stop="toggleDropdown('insurer')">
+                  <span v-if="selectedInsurers.length > 0" class="chip-x" @click.stop="selectedInsurers = []">✕</span>
+                  {{ selectedInsurers.length > 0 ? 'Insurance company (' + selectedInsurers.length + ')' : 'Insurance company' }}
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M3 5L6 8L9 5" stroke="#1B1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div v-if="openDropdown === 'insurer'" class="filter-dropdown-menu" style="min-width: 220px;">
+                  <div v-for="ins in insurers" :key="ins" class="dropdown-item" :class="{ selected: selectedInsurers.includes(ins) }" @click="toggleInsurer(ins)">
+                    {{ ins }}
+                    <svg v-if="selectedInsurers.includes(ins)" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L7 12L13 4" stroke="#1B1C1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan cards -->
+          <div v-for="(plan, i) in plans" :key="i" class="plan-card">
+            <div class="plan-card-header">
+              <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px;">{{ plan.company }}</div>
+              <span class="plan-tier" :class="'tier-' + plan.tierClass">{{ plan.tier }}</span>
+            </div>
+            <div class="plan-name-row">
+              <div class="plan-name">{{ plan.name }}</div>
+              <a class="find-providers" href="#">
+                Find in-network providers
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M3 9L9 3M9 3H4M9 3V8" stroke="#4299A6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+            <div class="plan-details-grid">
+              <div class="plan-detail">
+                <div class="plan-detail-label">Deductible</div>
+                <div class="plan-detail-value">{{ plan.deductible }}</div>
+              </div>
+              <div class="plan-detail">
+                <div class="plan-detail-label">Monthly premium</div>
+                <div class="plan-detail-value">{{ plan.premium }}</div>
+              </div>
+            </div>
+            <div class="plan-footer">
+              <label class="compare-label">
+                <input type="checkbox" />
+                Compare
+              </label>
+              <a class="plan-details-link" href="#">
+                Plan details
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 4L10 8L6 12" stroke="#1B1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>&copy; 2025 Vitable. All rights reserved</p>
+    </footer>
+  </div>
+
+  <!-- Click outside handler for dropdowns -->
+  <div v-if="openDropdown" class="click-outside" @click="openDropdown = null"></div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp, ref } = Vue;
+
+createApp({
+  setup() {
+    const currentPage = ref('coverage');
+    const openDropdown = ref(null);
+
+    // Coverage form
+    const people = ref([
+      { name: 'Jane', age: '36', relationship: 'Self' }
+    ]);
+
+    function addPerson() {
+      people.value.push({ name: '', age: '', relationship: '' });
+    }
+
+    function removePerson(index) {
+      people.value.splice(index, 1);
+    }
+
+    function selectRelationship(index, value) {
+      people.value[index].relationship = value;
+      openDropdown.value = null;
+    }
+
+    function toggleDropdown(id) {
+      openDropdown.value = openDropdown.value === id ? null : id;
+    }
+
+    function searchPlans() {
+      currentPage.value = 'plans';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goBack() {
+      if (currentPage.value === 'plans') {
+        currentPage.value = 'coverage';
+      }
+    }
+
+    // Plans page
+    const selectedSort = ref('Lowest deductible');
+    const selectedMetalLevel = ref('Gold');
+    const metalLevels = ['Gold', 'Silver', 'Expanded bronze', 'Bronze'];
+    const planTypes = ['EPO', 'HMO', 'PPO', 'POS'];
+    const insurers = ['Anthem', 'Oscar', 'CareSource', 'Aetna CVS Health'];
+    const selectedInsurers = ref(['Anthem', 'Oscar', 'Aetna CVS Health']);
+
+    function toggleInsurer(name) {
+      const idx = selectedInsurers.value.indexOf(name);
+      if (idx >= 0) {
+        selectedInsurers.value.splice(idx, 1);
+      } else {
+        selectedInsurers.value.push(name);
+      }
+    }
+
+    function clearAllFilters() {
+      selectedMetalLevel.value = null;
+      selectedInsurers.value = [];
+    }
+
+    const plans = ref([
+      {
+        company: 'oscar',
+        tier: 'Silver',
+        tierClass: 'silver',
+        name: 'Silver elite saver plus',
+        deductible: '$0.00',
+        premium: '$1,084.02'
+      },
+      {
+        company: 'HIGHMARK.',
+        tier: 'Expanded Bronze EPO',
+        tierClass: 'expanded-bronze',
+        name: 'My Direct Blue EPO Premier Silver 0',
+        deductible: '$0.00',
+        premium: '$1,084.02'
+      },
+      {
+        company: 'oscar',
+        tier: 'Gold',
+        tierClass: 'gold',
+        name: 'Gold secure plus',
+        deductible: '$500.00',
+        premium: '$1,245.30'
+      }
+    ]);
+
+    return {
+      currentPage,
+      openDropdown,
+      people,
+      addPerson,
+      removePerson,
+      selectRelationship,
+      toggleDropdown,
+      searchPlans,
+      goBack,
+      selectedSort,
+      selectedMetalLevel,
+      metalLevels,
+      planTypes,
+      insurers,
+      selectedInsurers,
+      toggleInsurer,
+      clearAllFilters,
+      plans
+    };
+  }
+}).mount('#app');
+</script>
+
+</body>
+</html>
