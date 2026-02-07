@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Dr. Vita - Your AI Health Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Core Colors */
+      --teal: #3D9A9E;
+      --teal-dark: #2D7A7E;
+      --teal-light: #E8F5F5;
+      --teal-glow: rgba(61, 154, 158, 0.3);
+
+      --purple: #9B8BC4;
+      --purple-light: #E8E4F3;
+      --purple-glow: rgba(155, 139, 196, 0.3);
+
+      --navy: #2C3E50;
+      --navy-dark: #1a252f;
+      --navy-light: #34495e;
+
+      --amber: #F6AD55;
+      --amber-light: #FEEBC8;
+
+      --red: #E53E3E;
+      --red-light: #FED7D7;
+
+      --green: #38A169;
+      --green-light: #C6F6D5;
+
+      /* Neutrals */
+      --grey-100: #F7FAFC;
+      --grey-200: #EDF2F7;
+      --grey-300: #E2E8F0;
+      --grey-400: #CBD5E0;
+      --grey-500: #A0AEC0;
+      --grey-600: #718096;
+      --grey-700: #4A5568;
+      --grey-800: #2D3748;
+      --grey-900: #1A202C;
+
+      --white: #FFFFFF;
+      --black: #000000;
+
+      /* Typography */
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      /* Animations */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+      --breathing-duration: 4s;
+    }
+
+    html, body {
+      font-family: var(--font);
+      background: linear-gradient(180deg, var(--grey-100) 0%, var(--grey-200) 100%);
+      color: var(--navy);
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow: hidden;
+    }
+
+    #app {
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    /* Mobile Frame */
+    .mobile-frame {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--white);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==================== */
+    /* THE ONE CARD SYSTEM  */
+    /* ==================== */
+
+    .vita-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Status Bar Simulation */
+    .status-bar {
+      height: 44px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 600;
+      background: transparent;
+      position: relative;
+      z-index: 100;
+    }
+
+    .status-bar-time {
+      color: var(--navy);
+    }
+
+    .status-bar-icons {
+      display: flex;
+      gap: 4px;
+      color: var(--navy);
+    }
+
+    /* Background Gradient - Changes based on state */
+    .vita-background {
+      position: absolute;
+      inset: 0;
+      transition: all 1s var(--ease-out-expo);
+      z-index: 0;
+    }
+
+    .vita-background.state-calm {
+      background: linear-gradient(180deg,
+        var(--teal-light) 0%,
+        var(--white) 50%,
+        var(--grey-100) 100%
+      );
+    }
+
+    .vita-background.state-attention {
+      background: linear-gradient(180deg,
+        var(--purple-light) 0%,
+        var(--white) 50%,
+        var(--grey-100) 100%
+      );
+    }
+
+    .vita-background.state-active {
+      background: linear-gradient(180deg,
+        var(--teal-light) 0%,
+        var(--teal-light) 30%,
+        var(--white) 100%
+      );
+    }
+
+    .vita-background.state-urgent {
+      background: linear-gradient(180deg,
+        var(--red-light) 0%,
+        var(--white) 50%,
+        var(--grey-100) 100%
+      );
+    }
+
+    /* Main Content Area */
+    .vita-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ==================== */
+    /* THE BREATHING ORB    */
+    /* ==================== */
+
+    .vita-orb-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .vita-orb {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+      box-shadow:
+        0 0 60px var(--teal-glow),
+        0 0 100px var(--teal-glow),
+        inset 0 -4px 20px rgba(0,0,0,0.1);
+      position: relative;
+      transition: all 0.5s var(--ease-out-expo);
+    }
+
+    .vita-orb::before {
+      content: '';
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--teal-glow) 0%, transparent 70%);
+      animation: orb-glow var(--breathing-duration) ease-in-out infinite;
+    }
+
+    .vita-orb::after {
+      content: '';
+      position: absolute;
+      top: 15%;
+      left: 20%;
+      width: 30%;
+      height: 20%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%);
+      border-radius: 50%;
+      filter: blur(8px);
+    }
+
+    /* Breathing Animation */
+    @keyframes breathing {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    @keyframes orb-glow {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.1); }
+    }
+
+    .vita-orb.breathing {
+      animation: breathing var(--breathing-duration) ease-in-out infinite;
+    }
+
+    /* Listening State - Voice Waveform */
+    .vita-orb.listening {
+      animation: none;
+    }
+
+    .voice-waves {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .vita-orb.listening .voice-waves {
+      opacity: 1;
+    }
+
+    .voice-wave {
+      width: 4px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: height 0.1s ease;
+    }
+
+    /* Speaking State - Ripples */
+    .ripple-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .ripple {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 2px solid var(--teal);
+      opacity: 0;
+    }
+
+    .vita-orb.speaking .ripple {
+      animation: ripple-out 2s ease-out infinite;
+    }
+
+    .vita-orb.speaking .ripple:nth-child(2) {
+      animation-delay: 0.5s;
+    }
+
+    .vita-orb.speaking .ripple:nth-child(3) {
+      animation-delay: 1s;
+    }
+
+    @keyframes ripple-out {
+      0% {
+        transform: scale(1);
+        opacity: 0.6;
+      }
+      100% {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+
+    /* Thinking State - Shimmer */
+    .vita-orb.thinking::before {
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+
+    /* State Colors */
+    .vita-orb.state-attention {
+      background: linear-gradient(135deg, var(--purple) 0%, #7B6BA4 100%);
+      box-shadow:
+        0 0 60px var(--purple-glow),
+        0 0 100px var(--purple-glow),
+        inset 0 -4px 20px rgba(0,0,0,0.1);
+    }
+
+    .vita-orb.state-urgent {
+      background: linear-gradient(135deg, var(--red) 0%, #C53030 100%);
+      box-shadow:
+        0 0 60px rgba(229, 62, 62, 0.3),
+        0 0 100px rgba(229, 62, 62, 0.3),
+        inset 0 -4px 20px rgba(0,0,0,0.1);
+      --breathing-duration: 2s;
+    }
+
+    /* ==================== */
+    /* STATUS MESSAGE       */
+    /* ==================== */
+
+    .vita-status {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .vita-greeting {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 8px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fade-in-up 0.6s var(--ease-out-expo) forwards;
+    }
+
+    .vita-message {
+      font-size: 16px;
+      color: var(--grey-600);
+      line-height: 1.5;
+      max-width: 280px;
+      margin: 0 auto;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fade-in-up 0.6s var(--ease-out-expo) 0.1s forwards;
+    }
+
+    @keyframes fade-in-up {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .vita-timestamp {
+      font-size: 13px;
+      color: var(--grey-500);
+      margin-top: 12px;
+      opacity: 0;
+      animation: fade-in-up 0.6s var(--ease-out-expo) 0.2s forwards;
+    }
+
+    /* ==================== */
+    /* TALK BUTTON          */
+    /* ==================== */
+
+    .vita-talk-btn {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--navy);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 4px 20px rgba(44, 62, 80, 0.3),
+        0 8px 40px rgba(44, 62, 80, 0.2);
+      transition: all 0.3s var(--ease-out-expo);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .vita-talk-btn:hover {
+      transform: scale(1.05);
+      box-shadow:
+        0 6px 30px rgba(44, 62, 80, 0.4),
+        0 12px 50px rgba(44, 62, 80, 0.3);
+    }
+
+    .vita-talk-btn:active {
+      transform: scale(0.95);
+    }
+
+    .vita-talk-btn.listening {
+      background: var(--red);
+      animation: pulse-recording 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-recording {
+      0%, 100% { box-shadow: 0 4px 20px rgba(229, 62, 62, 0.4); }
+      50% { box-shadow: 0 4px 40px rgba(229, 62, 62, 0.6); }
+    }
+
+    .vita-talk-btn svg {
+      width: 28px;
+      height: 28px;
+      color: var(--white);
+      transition: all 0.3s ease;
+    }
+
+    .vita-talk-btn.listening svg {
+      transform: scale(1.1);
+    }
+
+    .talk-btn-label {
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      color: var(--grey-600);
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+
+    /* ==================== */
+    /* QUICK ACTIONS        */
+    /* ==================== */
+
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0 20px;
+      opacity: 0;
+      animation: fade-in-up 0.6s var(--ease-out-expo) 0.3s forwards;
+    }
+
+    .quick-action {
+      padding: 10px 18px;
+      background: var(--white);
+      border: 1.5px solid var(--grey-300);
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--navy);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: var(--font);
+    }
+
+    .quick-action:hover {
+      background: var(--teal-light);
+      border-color: var(--teal);
+      color: var(--teal-dark);
+    }
+
+    /* ==================== */
+    /* CONVERSATION VIEW    */
+    /* ==================== */
+
+    .conversation-view {
+      position: absolute;
+      inset: 0;
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease-out-expo);
+    }
+
+    .conversation-view.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .conversation-header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--grey-200);
+      background: var(--white);
+    }
+
+    .conversation-close {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--grey-100);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .conversation-close:hover {
+      background: var(--grey-200);
+    }
+
+    .conversation-close svg {
+      width: 20px;
+      height: 20px;
+      color: var(--grey-700);
+    }
+
+    .conversation-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .conversation-escalate {
+      padding: 8px 16px;
+      background: var(--teal-light);
+      border: none;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--teal-dark);
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all 0.2s ease;
+    }
+
+    .conversation-escalate:hover {
+      background: var(--teal);
+      color: var(--white);
+    }
+
+    /* Messages Area */
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message {
+      max-width: 85%;
+      animation: message-in 0.4s var(--ease-out-expo);
+    }
+
+    @keyframes message-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.vita {
+      align-self: flex-start;
+    }
+
+    .message.user {
+      align-self: flex-end;
+    }
+
+    .message-bubble {
+      padding: 14px 18px;
+      border-radius: 20px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .message.vita .message-bubble {
+      background: linear-gradient(135deg, var(--teal-light) 0%, #d4eded 100%);
+      color: var(--navy);
+      border-bottom-left-radius: 6px;
+    }
+
+    .message.user .message-bubble {
+      background: var(--navy);
+      color: var(--white);
+      border-bottom-right-radius: 6px;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: var(--grey-500);
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    .message.user .message-time {
+      text-align: right;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 14px 18px;
+      background: var(--teal-light);
+      border-radius: 20px;
+      border-bottom-left-radius: 6px;
+      width: fit-content;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--teal);
+      border-radius: 50%;
+      animation: typing-bounce 1.4s ease-in-out infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing-bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    /* Conversation Input */
+    .conversation-input {
+      padding: 16px 20px;
+      background: var(--white);
+      border-top: 1px solid var(--grey-200);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .conversation-input input {
+      flex: 1;
+      height: 48px;
+      padding: 0 20px;
+      border: 1.5px solid var(--grey-300);
+      border-radius: 24px;
+      font-size: 15px;
+      font-family: var(--font);
+      color: var(--navy);
+      transition: all 0.2s ease;
+    }
+
+    .conversation-input input:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px var(--teal-glow);
+    }
+
+    .conversation-input input::placeholder {
+      color: var(--grey-500);
+    }
+
+    .voice-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--navy);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .voice-btn:hover {
+      background: var(--navy-light);
+    }
+
+    .voice-btn.active {
+      background: var(--red);
+    }
+
+    .voice-btn svg {
+      width: 22px;
+      height: 22px;
+      color: var(--white);
+    }
+
+    /* ==================== */
+    /* CANVAS OVERLAYS      */
+    /* ==================== */
+
+    .canvas-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.98);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      z-index: 40;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s var(--ease-out-expo);
+    }
+
+    .canvas-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Body Map */
+    .body-map-container {
+      width: 100%;
+      max-width: 280px;
+      position: relative;
+    }
+
+    .body-map {
+      width: 100%;
+      height: auto;
+    }
+
+    .body-map svg {
+      width: 100%;
+      height: auto;
+    }
+
+    .body-region {
+      fill: var(--grey-200);
+      stroke: var(--grey-400);
+      stroke-width: 1;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .body-region:hover {
+      fill: var(--teal-light);
+    }
+
+    .body-region.selected {
+      fill: var(--teal);
+      stroke: var(--teal-dark);
+      animation: pulse-region 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-region {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .body-map-instruction {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 16px;
+      color: var(--grey-600);
+    }
+
+    /* Severity Slider */
+    .severity-slider-container {
+      width: 100%;
+      max-width: 300px;
+      margin-top: 30px;
+    }
+
+    .severity-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--grey-600);
+      margin-bottom: 12px;
+    }
+
+    .severity-slider {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(90deg, var(--green) 0%, var(--amber) 50%, var(--red) 100%);
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .severity-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      background: var(--white);
+      border: 3px solid var(--navy);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .severity-value {
+      text-align: center;
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-top: 16px;
+    }
+
+    /* ==================== */
+    /* TRIAGE RESULT        */
+    /* ==================== */
+
+    .triage-card {
+      width: 100%;
+      max-width: 340px;
+      background: var(--white);
+      border-radius: 24px;
+      padding: 32px 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .triage-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+
+    .triage-icon.self-care {
+      background: var(--green-light);
+    }
+
+    .triage-icon.schedule {
+      background: var(--amber-light);
+    }
+
+    .triage-icon.urgent {
+      background: var(--red-light);
+    }
+
+    .triage-level {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .triage-level.self-care { color: var(--green); }
+    .triage-level.schedule { color: var(--amber); }
+    .triage-level.urgent { color: var(--red); }
+
+    .triage-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    .triage-description {
+      font-size: 15px;
+      color: var(--grey-600);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .triage-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .triage-btn {
+      padding: 16px 24px;
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .triage-btn.primary {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .triage-btn.primary:hover {
+      background: var(--navy-light);
+    }
+
+    .triage-btn.secondary {
+      background: var(--grey-100);
+      color: var(--navy);
+    }
+
+    .triage-btn.secondary:hover {
+      background: var(--grey-200);
+    }
+
+    /* ==================== */
+    /* FAMILY HUB           */
+    /* ==================== */
+
+    .family-hub {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+      padding: 24px 20px;
+      transform: translateY(100%);
+      transition: transform 0.4s var(--ease-out-expo);
+      z-index: 60;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .family-hub.active {
+      transform: translateY(0);
+    }
+
+    .family-hub-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .family-hub-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .family-hub-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--grey-100);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .family-member {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      background: var(--grey-100);
+      border-radius: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .family-member:hover {
+      background: var(--teal-light);
+    }
+
+    .family-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--teal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--white);
+      margin-right: 16px;
+    }
+
+    .family-info {
+      flex: 1;
+    }
+
+    .family-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 2px;
+    }
+
+    .family-relation {
+      font-size: 13px;
+      color: var(--grey-600);
+    }
+
+    .family-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .family-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .family-status-dot.good { background: var(--green); }
+    .family-status-dot.attention { background: var(--amber); }
+    .family-status-dot.concern { background: var(--red); }
+
+    .add-family-btn {
+      width: 100%;
+      padding: 16px;
+      background: transparent;
+      border: 2px dashed var(--grey-300);
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--grey-600);
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all 0.2s ease;
+    }
+
+    .add-family-btn:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    /* ==================== */
+    /* BOTTOM NAV           */
+    /* ==================== */
+
+    .bottom-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 12px 20px 28px;
+      background: var(--white);
+      border-top: 1px solid var(--grey-200);
+      position: relative;
+      z-index: 10;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      color: var(--grey-500);
+      transition: all 0.2s ease;
+    }
+
+    .nav-item span {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--grey-500);
+      font-family: var(--font);
+    }
+
+    .nav-item.active svg {
+      color: var(--teal);
+    }
+
+    .nav-item.active span {
+      color: var(--teal);
+    }
+
+    .nav-item:hover svg {
+      color: var(--teal);
+    }
+
+    /* ==================== */
+    /* DISCLAIMER           */
+    /* ==================== */
+
+    .disclaimer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--navy);
+      color: var(--white);
+      padding: 16px 20px;
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: center;
+      transform: translateY(100%);
+      transition: transform 0.4s var(--ease-out-expo);
+      z-index: 200;
+    }
+
+    .disclaimer.visible {
+      transform: translateY(0);
+    }
+
+    .disclaimer-close {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--white);
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* ==================== */
+    /* UTILITIES            */
+    /* ==================== */
+
+    .hidden { display: none !important; }
+
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity 0.3s ease;
+    }
+
+    .fade-enter-from, .fade-leave-to {
+      opacity: 0;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--grey-300);
+      border-radius: 2px;
+    }
+
+    /* Safe area padding for notched phones */
+    @supports (padding-top: env(safe-area-inset-top)) {
+      .status-bar {
+        padding-top: env(safe-area-inset-top);
+      }
+      .bottom-nav {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="mobile-frame">
+      <div class="vita-container">
+        <!-- Dynamic Background -->
+        <div class="vita-background" :class="'state-' + currentState"></div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <span class="status-bar-time">{{ currentTime }}</span>
+          <div class="status-bar-icons">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="vita-content" v-if="!showConversation">
+          <!-- The Breathing Orb -->
+          <div class="vita-orb-container">
+            <div
+              class="vita-orb"
+              :class="[
+                orbState,
+                'state-' + currentState,
+                { breathing: orbState === 'idle' }
+              ]"
+            >
+              <!-- Voice Waves (for listening) -->
+              <div class="voice-waves">
+                <div
+                  v-for="i in 5"
+                  :key="i"
+                  class="voice-wave"
+                  :style="{ height: waveHeights[i-1] + 'px' }"
+                ></div>
+              </div>
+
+              <!-- Ripples (for speaking) -->
+              <div class="ripple-container">
+                <div class="ripple"></div>
+                <div class="ripple"></div>
+                <div class="ripple"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Message -->
+          <div class="vita-status">
+            <h1 class="vita-greeting">{{ greeting }}</h1>
+            <p class="vita-message">{{ statusMessage }}</p>
+            <p class="vita-timestamp" v-if="lastCheckTime">Last check: {{ lastCheckTime }}</p>
+          </div>
+
+          <!-- Talk Button -->
+          <button
+            class="vita-talk-btn"
+            :class="{ listening: isListening }"
+            @click="toggleListening"
+          >
+            <svg v-if="!isListening" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+            <svg v-else viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12" rx="2"/>
+            </svg>
+            <span class="talk-btn-label">{{ isListening ? 'Tap to stop' : 'Talk to Vita' }}</span>
+          </button>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <button
+              v-for="action in quickActions"
+              :key="action.id"
+              class="quick-action"
+              @click="handleQuickAction(action)"
+            >
+              {{ action.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Conversation View -->
+        <div class="conversation-view" :class="{ active: showConversation }">
+          <div class="conversation-header">
+            <button class="conversation-close" @click="closeConversation">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+            </button>
+            <span class="conversation-title">Dr. Vita</span>
+            <button class="conversation-escalate" @click="escalateToDoctor">
+              Talk to Doctor
+            </button>
+          </div>
+
+          <div class="messages-container" ref="messagesContainer">
+            <div
+              v-for="(message, index) in messages"
+              :key="index"
+              class="message"
+              :class="message.sender"
+            >
+              <div class="message-bubble">
+                {{ message.text }}
+              </div>
+              <div class="message-time">{{ message.time }}</div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div v-if="isTyping" class="message vita">
+              <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Canvas Overlays -->
+          <div class="canvas-overlay" :class="{ active: showBodyMap }">
+            <div class="body-map-container">
+              <div class="body-map">
+                <svg viewBox="0 0 200 400" fill="none">
+                  <!-- Simple body outline -->
+                  <!-- Head -->
+                  <circle
+                    cx="100" cy="40" r="30"
+                    class="body-region"
+                    :class="{ selected: selectedRegions.includes('head') }"
+                    @click="toggleRegion('head')"
+                  />
+                  <!-- Neck -->
+                  <rect x="90" y="70" width="20" height="20" class="body-region"
+                    :class="{ selected: selectedRegions.includes('neck') }"
+                    @click="toggleRegion('neck')"
+                  />
+                  <!-- Torso -->
+                  <rect x="60" y="90" width="80" height="100" rx="10" class="body-region"
+                    :class="{ selected: selectedRegions.includes('torso') }"
+                    @click="toggleRegion('torso')"
+                  />
+                  <!-- Left Arm -->
+                  <rect x="20" y="95" width="35" height="80" rx="10" class="body-region"
+                    :class="{ selected: selectedRegions.includes('leftArm') }"
+                    @click="toggleRegion('leftArm')"
+                  />
+                  <!-- Right Arm -->
+                  <rect x="145" y="95" width="35" height="80" rx="10" class="body-region"
+                    :class="{ selected: selectedRegions.includes('rightArm') }"
+                    @click="toggleRegion('rightArm')"
+                  />
+                  <!-- Left Leg -->
+                  <rect x="60" y="195" width="35" height="120" rx="10" class="body-region"
+                    :class="{ selected: selectedRegions.includes('leftLeg') }"
+                    @click="toggleRegion('leftLeg')"
+                  />
+                  <!-- Right Leg -->
+                  <rect x="105" y="195" width="35" height="120" rx="10" class="body-region"
+                    :class="{ selected: selectedRegions.includes('rightLeg') }"
+                    @click="toggleRegion('rightLeg')"
+                  />
+                </svg>
+              </div>
+              <p class="body-map-instruction">Tap where you're experiencing discomfort</p>
+            </div>
+
+            <div class="severity-slider-container" v-if="selectedRegions.length > 0">
+              <div class="severity-label">
+                <span>Mild</span>
+                <span>Severe</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                v-model="severityLevel"
+                class="severity-slider"
+              />
+              <div class="severity-value">{{ severityLevel }}</div>
+            </div>
+
+            <button
+              v-if="selectedRegions.length > 0"
+              class="triage-btn primary"
+              style="margin-top: 24px;"
+              @click="submitBodyMap"
+            >
+              Continue
+            </button>
+          </div>
+
+          <!-- Triage Result -->
+          <div class="canvas-overlay" :class="{ active: showTriageResult }">
+            <div class="triage-card">
+              <div class="triage-icon" :class="triageResult.level">
+                {{ triageResult.icon }}
+              </div>
+              <div class="triage-level" :class="triageResult.level">
+                {{ triageResult.levelText }}
+              </div>
+              <h2 class="triage-title">{{ triageResult.title }}</h2>
+              <p class="triage-description">{{ triageResult.description }}</p>
+              <div class="triage-actions">
+                <button class="triage-btn primary" @click="handleTriageAction">
+                  {{ triageResult.primaryAction }}
+                </button>
+                <button class="triage-btn secondary" @click="closeTriageResult">
+                  {{ triageResult.secondaryAction }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="conversation-input">
+            <input
+              type="text"
+              v-model="inputMessage"
+              placeholder="Type or tap mic to speak..."
+              @keyup.enter="sendMessage"
+            />
+            <button
+              class="voice-btn"
+              :class="{ active: isListening }"
+              @click="toggleListening"
+            >
+              <svg v-if="!isListening" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+              </svg>
+              <svg v-else viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12" rx="2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Family Hub -->
+        <div class="family-hub" :class="{ active: showFamilyHub }">
+          <div class="family-hub-header">
+            <h2 class="family-hub-title">My Health Circle</h2>
+            <button class="family-hub-close" @click="showFamilyHub = false">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <div
+            v-for="member in familyMembers"
+            :key="member.id"
+            class="family-member"
+            @click="selectFamilyMember(member)"
+          >
+            <div class="family-avatar">{{ member.initials }}</div>
+            <div class="family-info">
+              <div class="family-name">{{ member.name }}</div>
+              <div class="family-relation">{{ member.relation }}</div>
+            </div>
+            <div class="family-status">
+              <div class="family-status-dot" :class="member.status"></div>
+              <span>{{ member.statusText }}</span>
+            </div>
+          </div>
+
+          <button class="add-family-btn">
+            + Add family member
+          </button>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+          <button class="nav-item" :class="{ active: activeTab === 'home' }" @click="activeTab = 'home'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9,22 9,12 15,12 15,22"/>
+            </svg>
+            <span>Home</span>
+          </button>
+          <button class="nav-item" :class="{ active: activeTab === 'history' }" @click="activeTab = 'history'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12,6 12,12 16,14"/>
+            </svg>
+            <span>History</span>
+          </button>
+          <button class="nav-item" :class="{ active: activeTab === 'family' }" @click="showFamilyHub = true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>Family</span>
+          </button>
+          <button class="nav-item" :class="{ active: activeTab === 'meds' }" @click="activeTab = 'meds'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.5 20.5L3.5 13.5a4.95 4.95 0 1 1 7-7l10 10a4.95 4.95 0 1 1-7 7l-3-3"/>
+              <path d="M8.5 8.5l7 7"/>
+            </svg>
+            <span>Meds</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer" :class="{ visible: showDisclaimer }">
+        <button class="disclaimer-close" @click="showDisclaimer = false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        Dr. Vita is an AI assistant designed to help you understand your symptoms.
+        It does not replace professional medical advice, diagnosis, or treatment.
+        Always consult a qualified healthcare provider for medical concerns.
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
+
+    createApp({
+      setup() {
+        // ==================
+        // STATE
+        // ==================
+        const currentState = ref('calm'); // calm, attention, active, urgent
+        const orbState = ref('idle'); // idle, listening, speaking, thinking
+        const isListening = ref(false);
+        const showConversation = ref(false);
+        const showFamilyHub = ref(false);
+        const showBodyMap = ref(false);
+        const showTriageResult = ref(false);
+        const showDisclaimer = ref(true);
+        const activeTab = ref('home');
+
+        const inputMessage = ref('');
+        const messages = ref([]);
+        const isTyping = ref(false);
+        const messagesContainer = ref(null);
+
+        // Voice wave animation
+        const waveHeights = ref([20, 30, 40, 30, 20]);
+        let waveInterval = null;
+
+        // Body map
+        const selectedRegions = ref([]);
+        const severityLevel = ref(5);
+
+        // Current time
+        const currentTime = ref('');
+
+        // Triage result
+        const triageResult = ref({
+          level: 'self-care',
+          levelText: 'Self-Care',
+          icon: '🟢',
+          title: 'Rest and Monitor',
+          description: 'Based on your symptoms, this appears to be manageable at home. Rest, stay hydrated, and monitor your symptoms.',
+          primaryAction: 'Got it',
+          secondaryAction: 'Talk to a doctor anyway'
+        });
+
+        // Quick actions
+        const quickActions = ref([
+          { id: 'symptoms', label: "I don't feel well" },
+          { id: 'meds', label: 'Check my meds' },
+          { id: 'history', label: 'My health history' }
+        ]);
+
+        // Family members
+        const familyMembers = ref([
+          { id: 1, name: 'Me', initials: 'ME', relation: 'Primary', status: 'good', statusText: 'All good' },
+          { id: 2, name: 'Sarah', initials: 'SK', relation: 'Spouse', status: 'good', statusText: 'All good' },
+          { id: 3, name: 'Emma', initials: 'EK', relation: 'Daughter (8)', status: 'attention', statusText: 'Mild cold' },
+          { id: 4, name: 'Mom', initials: 'MK', relation: 'Mother', status: 'good', statusText: 'Medication due' }
+        ]);
+
+        // ==================
+        // COMPUTED
+        // ==================
+        const greeting = computed(() => {
+          const hour = new Date().getHours();
+          if (hour < 12) return 'Good morning';
+          if (hour < 18) return 'Good afternoon';
+          return 'Good evening';
+        });
+
+        const statusMessage = computed(() => {
+          if (currentState.value === 'calm') {
+            return "I'm here whenever you need me. How are you feeling today?";
+          } else if (currentState.value === 'attention') {
+            return "I noticed something I'd like to check on. Want to talk about it?";
+          } else if (currentState.value === 'urgent') {
+            return "Based on what you've told me, I think we should talk now.";
+          }
+          return "How can I help you today?";
+        });
+
+        const lastCheckTime = computed(() => {
+          return '2 hours ago';
+        });
+
+        // ==================
+        // METHODS
+        // ==================
+        const updateTime = () => {
+          const now = new Date();
+          currentTime.value = now.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          });
+        };
+
+        const toggleListening = () => {
+          isListening.value = !isListening.value;
+
+          if (isListening.value) {
+            orbState.value = 'listening';
+            startVoiceWaves();
+
+            // If not in conversation, open it
+            if (!showConversation.value) {
+              showConversation.value = true;
+            }
+
+            // Simulate voice recognition
+            setTimeout(() => {
+              if (isListening.value) {
+                isListening.value = false;
+                orbState.value = 'idle';
+                stopVoiceWaves();
+
+                // Simulate recognized speech
+                const recognizedTexts = [
+                  "I've had a headache for two days",
+                  "My throat is sore and I feel tired",
+                  "I'm having trouble sleeping lately"
+                ];
+                const randomText = recognizedTexts[Math.floor(Math.random() * recognizedTexts.length)];
+                inputMessage.value = randomText;
+                sendMessage();
+              }
+            }, 3000);
+          } else {
+            orbState.value = 'idle';
+            stopVoiceWaves();
+          }
+        };
+
+        const startVoiceWaves = () => {
+          waveInterval = setInterval(() => {
+            waveHeights.value = waveHeights.value.map(() =>
+              Math.floor(Math.random() * 30) + 15
+            );
+          }, 100);
+        };
+
+        const stopVoiceWaves = () => {
+          if (waveInterval) {
+            clearInterval(waveInterval);
+            waveInterval = null;
+          }
+          waveHeights.value = [20, 30, 40, 30, 20];
+        };
+
+        const handleQuickAction = (action) => {
+          showConversation.value = true;
+
+          if (action.id === 'symptoms') {
+            addMessage("I don't feel well", 'user');
+            respondToSymptoms();
+          } else if (action.id === 'meds') {
+            addMessage("I want to check my medications", 'user');
+            respondToMeds();
+          } else if (action.id === 'history') {
+            addMessage("Show me my health history", 'user');
+            respondToHistory();
+          }
+        };
+
+        const sendMessage = () => {
+          if (!inputMessage.value.trim()) return;
+
+          addMessage(inputMessage.value, 'user');
+          const userMessage = inputMessage.value.toLowerCase();
+          inputMessage.value = '';
+
+          // Analyze and respond
+          if (userMessage.includes('headache') || userMessage.includes('head')) {
+            respondToHeadache();
+          } else if (userMessage.includes('throat') || userMessage.includes('sore')) {
+            respondToThroat();
+          } else if (userMessage.includes('sleep') || userMessage.includes('tired')) {
+            respondToSleep();
+          } else if (userMessage.includes('yes') || userMessage.includes('show')) {
+            showBodyMap.value = true;
+          } else {
+            respondGeneric();
+          }
+        };
+
+        const addMessage = (text, sender) => {
+          const now = new Date();
+          messages.value.push({
+            text,
+            sender,
+            time: now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+          });
+          scrollToBottom();
+        };
+
+        const respondToSymptoms = () => {
+          isTyping.value = true;
+          orbState.value = 'thinking';
+
+          setTimeout(() => {
+            isTyping.value = false;
+            orbState.value = 'speaking';
+            addMessage("I'm sorry to hear that. I'm here to help. Can you tell me more about how you're feeling? What symptoms are you experiencing?", 'vita');
+
+            setTimeout(() => {
+              orbState.value = 'idle';
+            }, 2000);
+          }, 1500);
+        };
+
+        const respondToHeadache = () => {
+          isTyping.value = true;
+          orbState.value = 'thinking';
+
+          setTimeout(() => {
+            isTyping.value = false;
+            orbState.value = 'speaking';
+            addMessage("I understand. Headaches can be really uncomfortable. Let me ask you a few questions to better understand what you're experiencing.", 'vita');
+
+            setTimeout(() => {
+              addMessage("On a scale of 1-10, how would you rate the pain? And can you show me where exactly it hurts?", 'vita');
+              showBodyMap.value = true;
+              orbState.value = 'idle';
+            }, 2000);
+          }, 1500);
+        };
+
+        const respondToThroat = () => {
+          isTyping.value = true;
+          orbState.value = 'thinking';
+
+          setTimeout(() => {
+            isTyping.value = false;
+            orbState.value = 'speaking';
+            addMessage("A sore throat combined with fatigue could be several things. Let me ask you a few questions.", 'vita');
+
+            setTimeout(() => {
+              addMessage("Do you have any fever? And how long have you been feeling this way?", 'vita');
+              orbState.value = 'idle';
+            }, 2000);
+          }, 1500);
+        };
+
+        const respondToSleep = () => {
+          isTyping.value = true;
+          orbState.value = 'thinking';
+          currentState.value = 'attention';
+
+          setTimeout(() => {
+            isTyping.value = false;
+            orbState.value = 'speaking';
+            addMessage("Sleep issues can really affect how you feel overall. I've actually noticed from your health data that your sleep patterns have been irregular this week.", 'vita');
+
+            setTimeout(() => {
+              addMessage("Are you having trouble falling asleep, staying asleep, or both? And is there anything on your mind that might be contributing to this?", 'vita');
+              orbState.value = 'idle';
+            }, 2000);
+          }, 1500);
+        };
+
+        const respondToMeds = () => {
+          isTyping.value = true;
+          orbState.value = 'thinking';
+
+          setTimeout(() => {
+            isTyping.value = false;
+            orbState.value = 'speaking';
+            addMessage("I can see you have 2 active medications. Your Lisinopril (10mg) is due tonight at 8pm, and you're all caught up on your Vitamin D.", 'vita');
+
+            setTimeout(() => {
+              addMessage("Would you like me to check for any interactions, or set a reminder?", 'vita');
+              orbState.value = 'idle';
+            }, 2000);
+          }, 1500);
+        };
+
+        const respondToHistory = () => {
+          isTyping.value = true;
+          orbState.value = 'thinking';
+
+          setTimeout(() => {
+            isTyping.value = false;
+            orbState.value = 'speaking';
+            addMessage("Here's a quick summary of your recent health activity:\n\n• Last week: Discussed mild headache (resolved)\n• 2 weeks ago: Annual check-up with Dr. Chen\n• Last month: Updated allergy information", 'vita');
+
+            setTimeout(() => {
+              addMessage("Would you like me to go into detail on any of these, or would you like to see your full health timeline?", 'vita');
+              orbState.value = 'idle';
+            }, 2000);
+          }, 1500);
+        };
+
+        const respondGeneric = () => {
+          isTyping.value = true;
+          orbState.value = 'thinking';
+
+          setTimeout(() => {
+            isTyping.value = false;
+            orbState.value = 'speaking';
+            addMessage("I hear you. Could you tell me a bit more about that? The more details you share, the better I can help.", 'vita');
+            orbState.value = 'idle';
+          }, 1500);
+        };
+
+        const toggleRegion = (region) => {
+          const index = selectedRegions.value.indexOf(region);
+          if (index > -1) {
+            selectedRegions.value.splice(index, 1);
+          } else {
+            selectedRegions.value.push(region);
+          }
+        };
+
+        const submitBodyMap = () => {
+          showBodyMap.value = false;
+
+          const regionNames = {
+            head: 'head',
+            neck: 'neck',
+            torso: 'chest/abdomen',
+            leftArm: 'left arm',
+            rightArm: 'right arm',
+            leftLeg: 'left leg',
+            rightLeg: 'right leg'
+          };
+
+          const regions = selectedRegions.value.map(r => regionNames[r]).join(' and ');
+          addMessage(`The pain is in my ${regions}, severity ${severityLevel.value}/10`, 'user');
+
+          isTyping.value = true;
+          orbState.value = 'thinking';
+
+          setTimeout(() => {
+            isTyping.value = false;
+            orbState.value = 'speaking';
+
+            if (severityLevel.value >= 8) {
+              currentState.value = 'urgent';
+              addMessage("Thank you for that information. Given the severity you've described, I want to make sure you get proper care.", 'vita');
+
+              setTimeout(() => {
+                triageResult.value = {
+                  level: 'urgent',
+                  levelText: 'Urgent Care Recommended',
+                  icon: '🔴',
+                  title: 'Please Seek Care Today',
+                  description: 'Based on your symptoms and their severity, I recommend you see a healthcare provider today. This could be urgent care or your primary doctor.',
+                  primaryAction: 'Find Urgent Care Near Me',
+                  secondaryAction: 'Talk to a Vitable Doctor Now'
+                };
+                showTriageResult.value = true;
+                orbState.value = 'idle';
+              }, 2000);
+            } else if (severityLevel.value >= 5) {
+              currentState.value = 'attention';
+              addMessage("I understand. A moderate level of discomfort that's persisted warrants attention.", 'vita');
+
+              setTimeout(() => {
+                triageResult.value = {
+                  level: 'schedule',
+                  levelText: 'Schedule a Visit',
+                  icon: '🟡',
+                  title: 'See a Doctor Soon',
+                  description: 'Your symptoms suggest you should see a healthcare provider within the next day or two to get properly evaluated.',
+                  primaryAction: 'Schedule Appointment',
+                  secondaryAction: 'Monitor for Now'
+                };
+                showTriageResult.value = true;
+                orbState.value = 'idle';
+              }, 2000);
+            } else {
+              addMessage("That's helpful to know. Based on what you've shared, this seems manageable with some self-care.", 'vita');
+
+              setTimeout(() => {
+                triageResult.value = {
+                  level: 'self-care',
+                  levelText: 'Self-Care',
+                  icon: '🟢',
+                  title: 'Rest and Monitor',
+                  description: 'Try rest, staying hydrated, and over-the-counter pain relief if needed. I\'ll check in with you tomorrow to see how you\'re doing.',
+                  primaryAction: 'Got It',
+                  secondaryAction: 'I\'d Rather See a Doctor'
+                };
+                showTriageResult.value = true;
+                orbState.value = 'idle';
+              }, 2000);
+            }
+          }, 2000);
+        };
+
+        const handleTriageAction = () => {
+          showTriageResult.value = false;
+          addMessage("I've noted your preference. Is there anything else I can help you with?", 'vita');
+        };
+
+        const closeTriageResult = () => {
+          showTriageResult.value = false;
+          addMessage("No problem. Let me know if you change your mind or if your symptoms change.", 'vita');
+        };
+
+        const closeConversation = () => {
+          showConversation.value = false;
+          showBodyMap.value = false;
+          showTriageResult.value = false;
+          selectedRegions.value = [];
+          severityLevel.value = 5;
+          currentState.value = 'calm';
+        };
+
+        const escalateToDoctor = () => {
+          addMessage("I'd like to speak with a real doctor.", 'user');
+          isTyping.value = true;
+
+          setTimeout(() => {
+            isTyping.value = false;
+            addMessage("Absolutely. I'm connecting you with a Vitable physician now. Based on our conversation, I'll share a summary with them so you don't have to repeat yourself. Expected wait time: under 5 minutes.", 'vita');
+          }, 1500);
+        };
+
+        const selectFamilyMember = (member) => {
+          showFamilyHub.value = false;
+          showConversation.value = true;
+          messages.value = [];
+          addMessage(`Switching to ${member.name}'s health profile. How can I help with ${member.name === 'Me' ? 'your' : member.name + "'s"} health today?`, 'vita');
+        };
+
+        const scrollToBottom = () => {
+          nextTick(() => {
+            if (messagesContainer.value) {
+              messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+            }
+          });
+        };
+
+        // ==================
+        // LIFECYCLE
+        // ==================
+        onMounted(() => {
+          updateTime();
+          setInterval(updateTime, 1000);
+
+          // Hide disclaimer after 5 seconds
+          setTimeout(() => {
+            showDisclaimer.value = false;
+          }, 5000);
+        });
+
+        watch(messages, scrollToBottom, { deep: true });
+
+        return {
+          currentState,
+          orbState,
+          isListening,
+          showConversation,
+          showFamilyHub,
+          showBodyMap,
+          showTriageResult,
+          showDisclaimer,
+          activeTab,
+          inputMessage,
+          messages,
+          isTyping,
+          messagesContainer,
+          waveHeights,
+          selectedRegions,
+          severityLevel,
+          currentTime,
+          triageResult,
+          quickActions,
+          familyMembers,
+          greeting,
+          statusMessage,
+          lastCheckTime,
+          toggleListening,
+          handleQuickAction,
+          sendMessage,
+          toggleRegion,
+          submitBodyMap,
+          handleTriageAction,
+          closeTriageResult,
+          closeConversation,
+          escalateToDoctor,
+          selectFamilyMember
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
